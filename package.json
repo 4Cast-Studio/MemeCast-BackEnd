@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@solana/wallet-standard-util": "^1.1.2",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "gpt-3-encoder": "^1.1.4",
+    "openai": "^4.79.1"
+  }
+}
