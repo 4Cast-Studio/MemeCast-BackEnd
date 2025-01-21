@@ -1,0 +1,7 @@
+*.js.map
+*.ts
+.git*
+local.settings.json
+node_modules/@types/*
+node_modules/azure-functions-core-tools/*
+node_modules/typescript/*
