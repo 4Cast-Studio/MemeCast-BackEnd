@@ -1,21 +1,16 @@
 import { type HttpRequest, type HttpResponseInit, type InvocationContext } from '@azure/functions';
 import { config } from '../config/Config.js';
 import { BaseHelper } from '../postgres/BaseHelper.js';
+import { GameRepository } from '../repositories/GameRepository.js';
 
 const baseHelper = new BaseHelper({
   connectionString: config.Postgres.ConnectionString,
 });
 
-async function handle(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-
-  // Placeholder for business logic
-
-  return {
-    jsonBody: {}, // Placeholder for response body
-  };
-}
-
-export async function GetPlatformMetrics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function GetPlatformMetrics(
+  request: HttpRequest,
+  context: InvocationContext,
+): Promise<HttpResponseInit> {
   try {
     context.log('Request received.');
 
@@ -29,4 +24,30 @@ export async function GetPlatformMetrics(request: HttpRequest, context: Invocati
       body: e.message,
     };
   }
+}
+
+async function handle(
+  request: HttpRequest,
+  context: InvocationContext,
+): Promise<HttpResponseInit> {
+  const gameRepository = new GameRepository(context, baseHelper);
+
+  const [walletSummaryResult, interationResult, gameRoundsResult, revenueShareResult] = await Promise.all([
+    gameRepository.queryUniqueWalletCountAndVolume(),
+    gameRepository.queryInteractions(),
+    gameRepository.queryGameRounds(),
+    gameRepository.queryRevenueShare(),
+  ]);
+
+  const responseBody = {
+    walletCount: walletSummaryResult?.wallet_count,
+    gamePlayVolume: walletSummaryResult?.total_volume,
+    interactions: interationResult?.interaction_count,
+    gameRounds: gameRoundsResult?.game_rounds,
+    revenueShare: revenueShareResult?.revenue_sharing,
+  };
+
+  return {
+    jsonBody: responseBody,
+  };
 }
